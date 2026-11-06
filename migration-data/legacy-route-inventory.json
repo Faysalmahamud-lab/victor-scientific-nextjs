@@ -1,0 +1,934 @@
+{
+  "web": [
+    {
+      "method": "POST",
+      "path": "/admin/clear-cache"
+    },
+    {
+      "method": "GET",
+      "path": "/admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/forgot-password"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/forgot-password"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/reset-password/{token}"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/reset-password"
+    },
+    {
+      "method": "POST",
+      "path": "/cc"
+    },
+    {
+      "method": "GET",
+      "path": "/sitemap"
+    },
+    {
+      "method": "POST",
+      "path": "/sitemap/generate"
+    },
+    {
+      "method": "GET",
+      "path": "/manifest.webmanifest"
+    },
+    {
+      "method": "GET",
+      "path": "/sitemap.xml"
+    },
+    {
+      "method": "GET",
+      "path": "/style.css"
+    },
+    {
+      "method": "GET",
+      "path": "/responsive.css"
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic-theme.css"
+    },
+    {
+      "method": "GET",
+      "path": "/fund"
+    },
+    {
+      "method": "POST",
+      "path": "/fund/add"
+    },
+    {
+      "method": "POST",
+      "path": "/fund/withdraw"
+    },
+    {
+      "method": "GET",
+      "path": "/fund/export"
+    },
+    {
+      "method": "GET",
+      "path": "/expenses"
+    },
+    {
+      "method": "POST",
+      "path": "/expenses/store"
+    },
+    {
+      "method": "GET",
+      "path": "/expenses/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/expenses/{id}/update"
+    },
+    {
+      "method": "GET",
+      "path": "/expenses/export"
+    },
+    {
+      "method": "GET",
+      "path": "/uddoktapay/verify"
+    },
+    {
+      "method": "GET",
+      "path": "/uddoktapay/cancel"
+    },
+    {
+      "method": "POST",
+      "path": "/uddoktapay/ipn"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/sms/custom-send"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/sms/custom-send"
+    },
+    {
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "method": "GET",
+      "path": "/site/contact-us"
+    },
+    {
+      "method": "GET",
+      "path": "/page/{slug}"
+    },
+    {
+      "method": "POST",
+      "path": "/contact/store"
+    },
+    {
+      "method": "GET",
+      "path": "/login"
+    },
+    {
+      "method": "POST",
+      "path": "/signin"
+    },
+    {
+      "method": "GET",
+      "path": "/register"
+    },
+    {
+      "method": "POST",
+      "path": "/store"
+    },
+    {
+      "method": "GET",
+      "path": "/verify"
+    },
+    {
+      "method": "POST",
+      "path": "/verify-account"
+    },
+    {
+      "method": "POST",
+      "path": "/resend-otp"
+    },
+    {
+      "method": "POST",
+      "path": "/logout"
+    },
+    {
+      "method": "GET",
+      "path": "/forgot-password"
+    },
+    {
+      "method": "POST",
+      "path": "/forgot-verify"
+    },
+    {
+      "method": "GET",
+      "path": "/forgot-password/reset"
+    },
+    {
+      "method": "POST",
+      "path": "/forgot-password/store"
+    },
+    {
+      "method": "POST",
+      "path": "/forgot-password/resendotp"
+    },
+    {
+      "method": "GET",
+      "path": "/account"
+    },
+    {
+      "method": "GET",
+      "path": "/invoice"
+    },
+    {
+      "method": "GET",
+      "path": "/profile-edit"
+    },
+    {
+      "method": "POST",
+      "path": "/profile-update"
+    },
+    {
+      "method": "GET",
+      "path": "/change-password"
+    },
+    {
+      "method": "POST",
+      "path": "/password-update"
+    },
+    {
+      "method": "GET",
+      "path": "/locked"
+    },
+    {
+      "method": "POST",
+      "path": "/unlocked"
+    },
+    {
+      "method": "GET",
+      "path": "/reports/expenses"
+    },
+    {
+      "method": "GET",
+      "path": "/reports/stock"
+    },
+    {
+      "method": "GET",
+      "path": "/email-setting"
+    },
+    {
+      "method": "POST",
+      "path": "/email-setting"
+    },
+    {
+      "method": "POST",
+      "path": "/email-setting/alerts"
+    },
+    {
+      "method": "POST",
+      "path": "/email-setting/test-email"
+    },
+    {
+      "method": "POST",
+      "path": "/email-setting/test-whatsapp"
+    },
+    {
+      "method": "GET",
+      "path": "/seo-settings"
+    },
+    {
+      "method": "POST",
+      "path": "/seo-settings"
+    },
+    {
+      "method": "GET",
+      "path": "/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/notifications/snapshot"
+    },
+    {
+      "method": "GET",
+      "path": "/change-password"
+    },
+    {
+      "method": "POST",
+      "path": "/new-password"
+    },
+    {
+      "method": "GET",
+      "path": "/users/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/users/create"
+    },
+    {
+      "method": "POST",
+      "path": "/users/save"
+    },
+    {
+      "method": "GET",
+      "path": "/users/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/users/update"
+    },
+    {
+      "method": "POST",
+      "path": "/users/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/users/active"
+    },
+    {
+      "method": "POST",
+      "path": "/users/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/roles/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/roles/{id}/show"
+    },
+    {
+      "method": "GET",
+      "path": "/roles/create"
+    },
+    {
+      "method": "POST",
+      "path": "/roles/save"
+    },
+    {
+      "method": "GET",
+      "path": "/roles/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/roles/update"
+    },
+    {
+      "method": "POST",
+      "path": "/roles/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/permissions/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/permissions/create"
+    },
+    {
+      "method": "POST",
+      "path": "/permissions/save"
+    },
+    {
+      "method": "GET",
+      "path": "/permissions/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/permissions/update"
+    },
+    {
+      "method": "POST",
+      "path": "/permissions/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/categories/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/categories/create"
+    },
+    {
+      "method": "POST",
+      "path": "/categories/save"
+    },
+    {
+      "method": "GET",
+      "path": "/categories/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/categories/update"
+    },
+    {
+      "method": "POST",
+      "path": "/categories/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/categories/active"
+    },
+    {
+      "method": "POST",
+      "path": "/categories/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/subcategories/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/subcategories/create"
+    },
+    {
+      "method": "POST",
+      "path": "/subcategories/save"
+    },
+    {
+      "method": "GET",
+      "path": "/subcategories/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/subcategories/update"
+    },
+    {
+      "method": "POST",
+      "path": "/subcategories/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/subcategories/active"
+    },
+    {
+      "method": "POST",
+      "path": "/subcategories/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/childcategories/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/childcategories/create"
+    },
+    {
+      "method": "POST",
+      "path": "/childcategories/save"
+    },
+    {
+      "method": "GET",
+      "path": "/childcategories/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/childcategories/update"
+    },
+    {
+      "method": "POST",
+      "path": "/childcategories/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/childcategories/active"
+    },
+    {
+      "method": "POST",
+      "path": "/childcategories/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/smsgeteway/manage"
+    },
+    {
+      "method": "POST",
+      "path": "/smsgeteway/save"
+    },
+    {
+      "method": "GET",
+      "path": "/marketing-pixels/manage"
+    },
+    {
+      "method": "POST",
+      "path": "/marketing-pixels/update"
+    },
+    {
+      "method": "GET",
+      "path": "/pixels/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/pixels/create"
+    },
+    {
+      "method": "POST",
+      "path": "/pixels/save"
+    },
+    {
+      "method": "GET",
+      "path": "/pixels/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/pixels/update"
+    },
+    {
+      "method": "POST",
+      "path": "/pixels/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/pixels/active"
+    },
+    {
+      "method": "POST",
+      "path": "/pixels/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/tag-manager/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/tag-manager/create"
+    },
+    {
+      "method": "POST",
+      "path": "/tag-manager/save"
+    },
+    {
+      "method": "GET",
+      "path": "/tag-manager/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/tag-manager/update"
+    },
+    {
+      "method": "POST",
+      "path": "/tag-manager/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/tag-manager/active"
+    },
+    {
+      "method": "POST",
+      "path": "/tag-manager/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/color/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/color/create"
+    },
+    {
+      "method": "POST",
+      "path": "/color/save"
+    },
+    {
+      "method": "GET",
+      "path": "/color/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/color/update"
+    },
+    {
+      "method": "POST",
+      "path": "/color/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/color/active"
+    },
+    {
+      "method": "POST",
+      "path": "/color/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/size/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/size/create"
+    },
+    {
+      "method": "POST",
+      "path": "/size/save"
+    },
+    {
+      "method": "GET",
+      "path": "/size/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/size/update"
+    },
+    {
+      "method": "POST",
+      "path": "/size/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/size/active"
+    },
+    {
+      "method": "POST",
+      "path": "/size/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/settings/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/settings/create"
+    },
+    {
+      "method": "POST",
+      "path": "/settings/save"
+    },
+    {
+      "method": "GET",
+      "path": "/settings/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/settings/update"
+    },
+    {
+      "method": "POST",
+      "path": "/settings/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/settings/active"
+    },
+    {
+      "method": "POST",
+      "path": "/settings/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/social-media/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/social-media/create"
+    },
+    {
+      "method": "POST",
+      "path": "/social-media/save"
+    },
+    {
+      "method": "GET",
+      "path": "/social-media/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/social-media/update"
+    },
+    {
+      "method": "POST",
+      "path": "/social-media/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/social-media/active"
+    },
+    {
+      "method": "POST",
+      "path": "/social-media/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/contact/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/contact/messages"
+    },
+    {
+      "method": "POST",
+      "path": "/contact/messages/read-all"
+    },
+    {
+      "method": "GET",
+      "path": "/contact/messages/{id}"
+    },
+    {
+      "method": "POST",
+      "path": "/contact/messages/{id}/read"
+    },
+    {
+      "method": "DELETE",
+      "path": "/contact/messages/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/contact/create"
+    },
+    {
+      "method": "POST",
+      "path": "/contact/save"
+    },
+    {
+      "method": "GET",
+      "path": "/contact/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/contact/update"
+    },
+    {
+      "method": "POST",
+      "path": "/contact/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/contact/active"
+    },
+    {
+      "method": "POST",
+      "path": "/contact/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/banner/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/banner/create"
+    },
+    {
+      "method": "POST",
+      "path": "/banner/save"
+    },
+    {
+      "method": "GET",
+      "path": "/banner/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/banner/update"
+    },
+    {
+      "method": "POST",
+      "path": "/banner/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/banner/active"
+    },
+    {
+      "method": "POST",
+      "path": "/banner/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/page/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/page/create"
+    },
+    {
+      "method": "POST",
+      "path": "/page/save"
+    },
+    {
+      "method": "GET",
+      "path": "/page/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/page/update"
+    },
+    {
+      "method": "POST",
+      "path": "/page/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/page/active"
+    },
+    {
+      "method": "POST",
+      "path": "/page/destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/pathao-city"
+    },
+    {
+      "method": "GET",
+      "path": "/pathao-zone"
+    },
+    {
+      "method": "GET",
+      "path": "/customer"
+    },
+    {
+      "method": "GET",
+      "path": "/customer/manage"
+    },
+    {
+      "method": "GET",
+      "path": "/customer/{id}/edit"
+    },
+    {
+      "method": "POST",
+      "path": "/customer/update"
+    },
+    {
+      "method": "POST",
+      "path": "/customer/inactive"
+    },
+    {
+      "method": "POST",
+      "path": "/customer/active"
+    },
+    {
+      "method": "GET",
+      "path": "/customer/profile"
+    },
+    {
+      "method": "POST",
+      "path": "/customer/adminlog"
+    },
+    {
+      "method": "GET",
+      "path": "/customer/ip-block"
+    },
+    {
+      "method": "POST",
+      "path": "/customer/ip-store"
+    },
+    {
+      "method": "POST",
+      "path": "/customer/ip-update"
+    },
+    {
+      "method": "POST",
+      "path": "/customer/ip-destroy"
+    },
+    {
+      "method": "GET",
+      "path": "/control-center"
+    },
+    {
+      "method": "POST",
+      "path": "/control-center/integration"
+    },
+    {
+      "method": "GET",
+      "path": "/control-center/report"
+    },
+    {
+      "method": "GET",
+      "path": "/control-center/integration-test"
+    },
+    {
+      "method": "GET",
+      "path": "/control-center/issues"
+    },
+    {
+      "method": "POST",
+      "path": "/control-center/clear-log"
+    },
+    {
+      "method": "GET",
+      "path": "/control-center/redirects"
+    },
+    {
+      "method": "POST",
+      "path": "/control-center/redirects"
+    },
+    {
+      "method": "PUT",
+      "path": "/control-center/redirects/{id}"
+    },
+    {
+      "method": "DELETE",
+      "path": "/control-center/redirects/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/control-center/page-availability"
+    },
+    {
+      "method": "POST",
+      "path": "/control-center/page-availability"
+    },
+    {
+      "method": "PUT",
+      "path": "/control-center/page-availability/{id}"
+    },
+    {
+      "method": "DELETE",
+      "path": "/control-center/page-availability/{id}"
+    },
+    {
+      "method": "POST",
+      "path": "/control-center/seo/scan"
+    },
+    {
+      "method": "POST",
+      "path": "/control-center/media/scan"
+    },
+    {
+      "method": "POST",
+      "path": "/control-center/performance/scan"
+    },
+    {
+      "method": "POST",
+      "path": "/control-center/security/recheck"
+    },
+    {
+      "method": "POST",
+      "path": "/control-center/analytics/refresh"
+    },
+    {
+      "method": "POST",
+      "path": "/control-center/backups/create"
+    }
+  ],
+  "api": [
+    {
+      "method": "GET",
+      "path": "/api/app-config"
+    },
+    {
+      "method": "GET",
+      "path": "/api/slider"
+    },
+    {
+      "method": "GET",
+      "path": "/api/footer-menu-left"
+    },
+    {
+      "method": "GET",
+      "path": "/api/footer-menu-right"
+    },
+    {
+      "method": "GET",
+      "path": "/api/social-media"
+    },
+    {
+      "method": "GET",
+      "path": "/api/contactinfo"
+    }
+  ]
+}

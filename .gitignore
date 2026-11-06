@@ -1,0 +1,35 @@
+node_modules/
+.next/
+out/
+coverage/
+.env
+.env.*
+!.env.example
+src/generated/prisma/
+playwright-report/
+test-results/
+
+# Local release and backup files
+*.zip
+backups/
+tmp/
+
+# Database backups must never enter source repository
+migration-data/*.sql
+migration-data/*.sql.gz
+*.sql
+*.sql.gz
+*.pem
+*.key
+*.bak
+*.backup
+*.log
+node_modules
+.next
+src/generated/prisma
+backups
+tmp
+public/uploads/business-credentials/
+public/uploads/users/
+
+*.tsbuildinfo

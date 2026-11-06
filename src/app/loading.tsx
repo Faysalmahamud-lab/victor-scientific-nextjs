@@ -1,0 +1,1 @@
+export default function Loading(){return <div className="container" style={{padding:"90px 0"}}><div className="empty-state"><h2>Loading content…</h2><p>Please wait while the page is prepared.</p></div></div>;}

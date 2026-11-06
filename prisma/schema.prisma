@@ -1,0 +1,1732 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id                   BigInt                     @id @default(autoincrement()) @db.UnsignedBigInt
+  name                 String                     @db.VarChar(255)
+  shop_name            String?                    @db.VarChar(255)
+  email                String                     @unique(map: "users_email_unique") @db.VarChar(255)
+  emailVerifiedAt      DateTime?                  @map("email_verified_at") @db.Timestamp(0)
+  password             String                     @db.VarChar(255)
+  rememberToken        String?                    @map("remember_token") @db.VarChar(100)
+  image                String?                    @default("public/uploads/default/user.png") @db.VarChar(255)
+  status               Int?                       @default(0) @db.TinyInt
+  role                 users_role                 @default(customer)
+  wallet_balance       Decimal                    @default(0.00) @db.Decimal(14, 2)
+  verification_status  users_verification_status? @default(pending)
+  voter_id_front       String?                    @db.VarChar(255)
+  voter_id_back        String?                    @db.VarChar(255)
+  self_image           String?                    @db.VarChar(255)
+  verification_note    String?                    @db.Text
+  verified_at          DateTime?                  @db.Timestamp(0)
+  vendor_id            Int?                       @db.UnsignedInt
+  createdAt            DateTime?                  @map("created_at") @db.Timestamp(0)
+  updatedAt            DateTime?                  @map("updated_at") @db.Timestamp(0)
+  reseller_withdrawals reseller_withdrawals[]
+  vendors              vendors?                   @relation(fields: [vendor_id], references: [id], onUpdate: Restrict, map: "users_vendor_id_foreign")
+
+  @@index([vendor_id], map: "users_vendor_id_foreign")
+  @@map("users")
+}
+
+model Product {
+  id                       BigInt                     @id @default(autoincrement()) @db.UnsignedBigInt
+  product_type             products_product_type      @default(physical)
+  name                     String                     @db.VarChar(255)
+  slug                     String                     @db.VarChar(255)
+  categoryId               Int                        @map("category_id")
+  subcategoryId            Int?                       @map("subcategory_id")
+  childcategoryId          Int?                       @map("childcategory_id")
+  brandId                  Int?                       @map("brand_id")
+  vendor_id                Int?                       @db.UnsignedInt
+  productCode              String?                    @map("product_code") @db.VarChar(155)
+  purchasePrice            Int?                       @default(0) @map("purchase_price")
+  oldPrice                 Int?                       @map("old_price")
+  newPrice                 Int                        @map("new_price")
+  reseller_price           Decimal?                   @db.Decimal(14, 2)
+  is_wholesale             Int                        @default(0) @db.TinyInt
+  wholesale_price          Decimal?                   @db.Decimal(14, 2)
+  min_wholesale_quantity   Int                        @default(1)
+  advance_amount           Decimal                    @default(0.00) @db.Decimal(10, 2)
+  ratting                  Float                      @default(0.0) @db.Float
+  stock                    Int
+  is_digital               Boolean                    @default(false)
+  free_delivery            Int                        @default(0) @db.TinyInt
+  digital_file             String?                    @db.VarChar(255)
+  download_limit           Int?
+  download_expire_days     Int?
+  pro_unit                 String?
+  pro_video                String?                    @db.VarChar(255)
+  local_video              String?                    @db.VarChar(500)
+  description              String?                    @db.LongText
+  faq                      String?                    @db.LongText
+  meta_title               String?                    @db.Text
+  metaDescription          String?                    @map("meta_description") @db.Text
+  meta_keywords            String?                    @db.Text
+  meta_image               String?                    @db.VarChar(255)
+  topsale                  Int?                       @db.TinyInt
+  flashsale                Int?                       @db.TinyInt
+  featureProduct           Int?                       @map("feature_product") @db.TinyInt
+  campaignId               Int?                       @map("campaign_id")
+  status                   Int                        @db.TinyInt
+  approval_status          products_approval_status   @default(approved)
+  sold                     String?                    @db.VarChar(255)
+  note                     String?                    @db.Text
+  createdAt                DateTime?                  @map("created_at") @db.Timestamp(0)
+  updatedAt                DateTime?                  @map("updated_at") @db.Timestamp(0)
+  model_number             String?
+  origin                   String?
+  capacity                 String?
+  warranty                 String?
+  show_product_type        Boolean                    @default(false)
+  technical_specifications String?                    @db.LongText
+  datasheet_path           String?                    @db.VarChar(500)
+  product_variant_prices   product_variant_prices[]
+  product_wholesale_prices product_wholesale_prices[]
+  vendors                  vendors?                   @relation(fields: [vendor_id], references: [id], onUpdate: Restrict, map: "products_vendor_id_foreign")
+  purchase_items           purchase_items[]
+
+  @@index([slug])
+  @@index([brandId, status], map: "products_brand_id_status_index")
+  @@index([categoryId, status], map: "products_category_id_status_index")
+  @@index([createdAt], map: "products_created_at_index")
+  @@index([slug], map: "products_slug_index")
+  @@index([status, categoryId], map: "products_status_category_idx")
+  @@index([status, childcategoryId], map: "products_status_childcategory_idx")
+  @@index([status, featureProduct], map: "products_status_feature_idx")
+  @@index([status, flashsale])
+  @@index([status, id])
+  @@index([status, subcategoryId], map: "products_status_subcategory_idx")
+  @@index([status, topsale])
+  @@index([vendor_id], map: "products_vendor_id_foreign")
+  @@map("products")
+}
+
+model Category {
+  id                 Int                  @id @default(autoincrement()) @db.UnsignedInt
+  parentId           Int                  @default(0) @map("parent_id")
+  name               String               @db.VarChar(255)
+  slug               String               @db.VarChar(255)
+  image              String?              @default("public/uploads/category/default.png") @db.VarChar(255)
+  icon               String?              @db.VarChar(255)
+  metaTitle          String?              @map("meta_title")
+  meta_keywords      String?              @db.Text
+  meta_description   String?              @db.Text
+  front_view         Int?
+  status             Int                  @db.TinyInt
+  createdAt          DateTime?            @map("created_at") @db.Timestamp(0)
+  updatedAt          DateTime?            @map("updated_at") @db.Timestamp(0)
+  meta_keyword       String?              @db.LongText
+  sort_order         Int                  @default(0) @db.UnsignedInt
+  seo_content        String?              @db.LongText
+  wholesale_products wholesale_products[]
+
+  @@index([slug])
+  @@index([parentId, status], map: "categories_parent_id_status_index")
+  @@index([parentId, sort_order], map: "categories_parent_sort_idx")
+  @@index([parentId, status, id], map: "categories_parent_status_id_idx")
+  @@index([slug], map: "categories_slug_index")
+  @@index([status, id])
+  @@map("categories")
+}
+
+model Subcategory {
+  id               Int       @id @default(autoincrement()) @db.UnsignedInt
+  subcategoryName  String    @map("subcategoryName") @db.VarChar(255)
+  slug             String    @db.VarChar(255)
+  categoryId       Int       @map("category_id")
+  image            String?   @db.Text
+  metaTitle        String?   @map("meta_title")
+  meta_keywords    String?   @db.Text
+  meta_description String?   @db.LongText
+  status           Int       @db.TinyInt
+  createdAt        DateTime? @map("created_at") @db.Timestamp(0)
+  updatedAt        DateTime? @map("updated_at") @db.Timestamp(0)
+  sort_order       Int       @default(0) @db.UnsignedInt
+  seo_content      String?   @db.LongText
+
+  @@index([slug])
+  @@index([categoryId, sort_order], map: "subcategories_category_sort_idx")
+  @@index([categoryId, status], map: "subcategories_category_status_idx")
+  @@map("subcategories")
+}
+
+model Childcategory {
+  id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  childcategoryName String    @default("text") @map("childcategoryName") @db.VarChar(255)
+  slug              String    @default("text") @db.VarChar(255)
+  subcategoryId     Int       @default(0) @map("subcategory_id") @db.UnsignedInt
+  metaTitle         String?   @map("meta_title")
+  meta_keywords     String?   @db.Text
+  meta_description  String?   @db.LongText
+  status            Int       @db.TinyInt
+  createdAt         DateTime? @map("created_at") @db.Timestamp(0)
+  updatedAt         DateTime? @map("updated_at") @db.Timestamp(0)
+  sort_order        Int       @default(0) @db.UnsignedInt
+  seo_content       String?   @db.LongText
+
+  @@index([slug])
+  @@index([subcategoryId, sort_order], map: "childcategories_subcategory_sort_idx")
+  @@index([subcategoryId, status], map: "childcategories_subcategory_status_idx")
+  @@map("childcategories")
+}
+
+model ProductImage {
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  image     String    @db.VarChar(255)
+  productId Int       @map("product_id")
+  createdAt DateTime? @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime? @map("updated_at") @db.Timestamp(0)
+
+  @@index([productId])
+  @@map("productimages")
+}
+
+model Brand {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  name       String    @db.VarChar(255)
+  slug       String    @db.VarChar(255)
+  image      String?   @default("public/uploads/category/default.png") @db.VarChar(255)
+  status     Int       @db.TinyInt
+  sort_order Int       @default(0) @db.UnsignedInt
+  createdAt  DateTime? @map("created_at") @db.Timestamp(0)
+  updatedAt  DateTime? @map("updated_at") @db.Timestamp(0)
+
+  @@index([sort_order])
+  @@index([status, id])
+  @@map("brands")
+}
+
+model CreatePage {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  name        String    @db.VarChar(255)
+  slug        String    @db.VarChar(255)
+  title       String    @db.VarChar(255)
+  description String    @db.Text
+  status      Int       @db.TinyInt
+  createdAt   DateTime? @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime? @map("updated_at") @db.Timestamp(0)
+
+  @@index([status, id])
+  @@map("create_pages")
+}
+
+model ContactMessage {
+  id        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  fullName  String    @map("full_name") @db.VarChar(255)
+  mobile    String    @db.VarChar(20)
+  email     String?   @db.VarChar(255)
+  subject   String?   @db.VarChar(255)
+  details   String    @db.Text
+  status    Boolean   @default(false)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime? @default(now()) @map("updated_at") @db.Timestamp(0)
+
+  @@index([status, id])
+  @@map("contact_messages")
+}
+
+model banner_categories {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  name       String    @db.VarChar(255)
+  status     Int       @db.TinyInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model banners {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  category_id Int
+  image       String    @db.VarChar(255)
+  link        String    @db.VarChar(255)
+  status      Int       @db.TinyInt
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+
+  @@index([status, category_id], map: "banners_status_category_idx")
+}
+
+model blogs {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title             String    @db.VarChar(255)
+  slug              String    @unique(map: "slug") @db.VarChar(255)
+  short_description String?   @db.Text
+  description       String    @db.LongText
+  image             String?   @db.VarChar(255)
+  views             Int?      @default(0)
+  status            Boolean?  @default(true)
+  created_at        DateTime? @default(now()) @db.Timestamp(0)
+  updated_at        DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model campaign_product {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  campaign_id BigInt    @db.UnsignedBigInt
+  product_id  BigInt    @db.UnsignedBigInt
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+
+  @@index([campaign_id, product_id], map: "campaign_product_lookup_idx")
+}
+
+model campaign_reviews {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  image       String    @db.VarChar(255)
+  campaign_id Int
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model campaigns {
+  id                   Int       @id @default(autoincrement()) @db.UnsignedInt
+  name                 String    @db.VarChar(255)
+  slug                 String    @db.VarChar(255)
+  product_id           Int
+  status               String    @db.VarChar(55)
+  created_at           DateTime? @db.Timestamp(0)
+  updated_at           DateTime? @db.Timestamp(0)
+  billing_details      String?   @default("একপিচ এর অধিক অর্ডার এর জন্য পরিমান লিখুন ও পছন্দের কালার গুলি সিলেক্ট করুন") @db.VarChar(255)
+  badge_text           String?   @db.VarChar(255)
+  hero_heading         String?   @db.VarChar(255)
+  hero_subtitle        String?   @db.Text
+  hero_list_1          String?   @db.VarChar(255)
+  hero_list_2          String?   @db.VarChar(255)
+  hero_list_3          String?   @db.VarChar(255)
+  hero_list_4          String?   @db.VarChar(255)
+  hero_list_5          String?   @db.VarChar(255)
+  hero_list_6          String?   @db.VarChar(255)
+  rating_text          String?   @db.VarChar(255)
+  review1_name         String?   @db.VarChar(255)
+  review1_location     String?   @db.VarChar(255)
+  review1_rating       Int?      @default(5) @db.TinyInt
+  review1_text         String?   @db.Text
+  review2_name         String?   @db.VarChar(255)
+  review2_location     String?   @db.VarChar(255)
+  review2_rating       Int?      @default(5) @db.TinyInt
+  review2_text         String?   @db.Text
+  review3_name         String?   @db.VarChar(255)
+  review3_location     String?   @db.VarChar(255)
+  review3_rating       Int?      @default(5) @db.TinyInt
+  faq_q1               String?   @db.VarChar(255)
+  faq_a1               String?   @db.Text
+  faq_q2               String?   @db.VarChar(255)
+  faq_a2               String?   @db.Text
+  faq_q3               String?   @db.VarChar(255)
+  faq_a3               String?   @db.Text
+  faq_q4               String?   @db.VarChar(255)
+  faq_a4               String?   @db.Text
+  review3_text         String?   @db.Text
+  feature1_title       String?   @db.VarChar(255)
+  feature1_text        String?   @db.Text
+  feature1_image       String?   @db.VarChar(255)
+  feature2_title       String?   @db.VarChar(255)
+  feature2_text        String?   @db.Text
+  feature2_image       String?   @db.VarChar(255)
+  why1_icon            String?   @db.VarChar(50)
+  why1_title           String?   @db.VarChar(255)
+  why1_text            String?   @db.Text
+  why2_icon            String?   @db.VarChar(50)
+  why2_title           String?   @db.VarChar(255)
+  why2_text            String?   @db.Text
+  why3_icon            String?   @db.VarChar(50)
+  why3_title           String?   @db.VarChar(255)
+  why3_text            String?   @db.Text
+  why4_icon            String?   @db.VarChar(50)
+  why4_title           String?   @db.VarChar(255)
+  why4_text            String?   @db.Text
+  banner_title         String?   @db.VarChar(255)
+  banner_subtitle      String?   @db.Text
+  banner_image1        String?   @db.VarChar(255)
+  banner_image2        String?   @db.VarChar(255)
+  gallery_image1       String?   @db.VarChar(255)
+  gallery_image2       String?   @db.VarChar(255)
+  gallery_image3       String?   @db.VarChar(255)
+  gallery_image4       String?   @db.VarChar(255)
+  gallery_image5       String?   @db.VarChar(255)
+  gallery_image6       String?   @db.VarChar(255)
+  gallery_image7       String?   @db.VarChar(255)
+  gallery_image8       String?   @db.VarChar(255)
+  help_messenger_link  String?   @db.VarChar(255)
+  help_whatsapp_link   String?   @db.VarChar(255)
+  help_call_number     String?   @db.VarChar(50)
+  video                String?   @db.LongText
+  short_description    String?   @db.LongText
+  description          String?   @db.LongText
+  hero_badge_text      String?   @db.VarChar(255)
+  hero_rating_text     String?   @db.VarChar(255)
+  hero_title           String?   @db.VarChar(255)
+  primary_btn_text     String?   @db.VarChar(255)
+  secondary_btn_text   String?   @db.VarChar(255)
+  banner_quote         String?   @db.VarChar(255)
+  banner_subtext       String?   @db.VarChar(255)
+  review_section_title String?   @db.VarChar(255)
+  review1_city         String?   @db.VarChar(255)
+  review1_stars        String?   @db.VarChar(255)
+  review2_city         String?   @db.VarChar(255)
+  review2_stars        String?   @db.VarChar(255)
+  review3_city         String?   @db.VarChar(255)
+  review3_stars        String?   @db.VarChar(255)
+  show_product         Int?      @default(0)
+}
+
+model carts {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  customer_id BigInt    @db.UnsignedBigInt
+  product_id  BigInt    @db.UnsignedBigInt
+  quantity    Int       @default(1)
+  price       Decimal   @db.Decimal(10, 2)
+  size_id     BigInt?   @db.UnsignedBigInt
+  color_id    BigInt?   @db.UnsignedBigInt
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model colors {
+  id                     Int                      @id @default(autoincrement()) @db.UnsignedInt
+  colorName              String?                  @db.VarChar(255)
+  color                  String?                  @db.VarChar(255)
+  status                 String?                  @db.VarChar(255)
+  created_at             DateTime?                @db.Timestamp(0)
+  updated_at             DateTime?                @db.Timestamp(0)
+  product_variant_prices product_variant_prices[]
+}
+
+model complaints {
+  id          BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  customer_id Int?               @db.UnsignedInt
+  order_id    BigInt?            @db.UnsignedBigInt
+  name        String             @db.VarChar(155)
+  phone       String             @db.VarChar(55)
+  image       String?            @db.VarChar(255)
+  description String             @db.Text
+  status      complaints_status? @default(pending)
+  created_at  DateTime?          @default(now()) @db.Timestamp(0)
+  updated_at  DateTime?          @default(now()) @db.Timestamp(0)
+}
+
+model contacts {
+  id         Int       @id @db.UnsignedInt
+  hotline    String?   @db.VarChar(50)
+  hotmail    String?   @db.VarChar(50)
+  phone      String    @db.VarChar(50)
+  whatsapp   String?   @db.VarChar(200)
+  email      String    @db.VarChar(50)
+  address    String    @db.VarChar(255)
+  maplink    String?   @db.VarChar(255)
+  status     Int       @db.TinyInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  @@index([status, id])
+}
+
+model control_center_redirects {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  type        String    @default("generic") @db.VarChar(30)
+  source      String    @db.VarChar(500)
+  target      String    @db.VarChar(500)
+  status_code Int       @default(301) @db.UnsignedSmallInt
+  enabled     Boolean   @default(true)
+  note        String?   @db.VarChar(500)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+
+  @@unique([type, source], map: "control_center_redirects_type_source_unique")
+}
+
+model coupons {
+  id           BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  code         String       @unique(map: "code") @db.VarChar(255)
+  type         coupons_type @default(flat)
+  value        Decimal      @db.Decimal(10, 2)
+  min_purchase Decimal?     @db.Decimal(10, 2)
+  valid_from   DateTime?    @db.Date
+  valid_to     DateTime?    @db.Date
+  status       Boolean      @default(true)
+  created_at   DateTime?    @db.Timestamp(0)
+  updated_at   DateTime?    @db.Timestamp(0)
+}
+
+model courierapis {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  type          String?   @db.VarChar(55)
+  api_key       String?   @db.VarChar(155)
+  secret_key    String?   @db.VarChar(155)
+  client_id     String?   @db.VarChar(255)
+  client_secret String?   @db.VarChar(255)
+  username      String?   @db.VarChar(255)
+  password      String?   @db.VarChar(255)
+  url           String?   @db.VarChar(99)
+  token         String?   @db.Text
+  webhook_url   String?   @db.VarChar(255)
+  status        String?   @db.VarChar(11)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model customers {
+  id             Int       @id @default(autoincrement()) @db.UnsignedInt
+  name           String    @db.VarChar(155)
+  slug           String    @db.VarChar(155)
+  phone          String    @db.VarChar(55)
+  email          String?   @db.VarChar(55)
+  district       String?   @db.VarChar(100)
+  area           Int?
+  address        String?   @db.VarChar(255)
+  verify         Int?
+  forgot         String?   @db.VarChar(11)
+  image          String    @default("public/uploads/default/user.png") @db.VarChar(255)
+  password       String    @db.VarChar(255)
+  remember_token String?   @db.VarChar(255)
+  status         String    @db.VarChar(55)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+  refunds        refunds[]
+}
+
+model digital_downloads {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  order_id            Int       @db.UnsignedInt
+  product_id          BigInt    @db.UnsignedBigInt
+  customer_id         Int       @db.UnsignedInt
+  token               String    @unique(map: "digital_downloads_token_unique") @db.VarChar(100)
+  file_path           String    @db.VarChar(255)
+  remaining_downloads Int?      @default(0)
+  expires_at          DateTime? @db.DateTime(0)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+
+  @@index([order_id, customer_id], map: "digital_downloads_order_id_customer_id_index")
+}
+
+model districts {
+  id             Int       @id @db.UnsignedInt
+  area_id        Int
+  area_name      String    @db.VarChar(255)
+  district       String    @db.VarChar(255)
+  shippingfee    String    @db.VarChar(255)
+  partialpayment String    @db.VarChar(255)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model ecom_pixels {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  code       String    @db.VarChar(255)
+  status     Int       @db.TinyInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model employee_attendances {
+  id              BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
+  employee_id     BigInt                      @db.UnsignedBigInt
+  attendance_date DateTime                    @db.Date
+  check_in        DateTime?                   @db.Time(0)
+  check_out       DateTime?                   @db.Time(0)
+  status          employee_attendances_status @default(present)
+  notes           String?                     @db.Text
+  marked_by       Int?                        @db.UnsignedInt
+  created_at      DateTime?                   @db.Timestamp(0)
+  updated_at      DateTime?                   @db.Timestamp(0)
+  employees       employees                   @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "employee_attendances_employee_id_foreign")
+
+  @@unique([employee_id, attendance_date], map: "employee_attendances_employee_id_attendance_date_unique")
+  @@index([attendance_date], map: "employee_attendances_attendance_date_index")
+  @@index([status], map: "employee_attendances_status_index")
+}
+
+model employee_bonuses {
+  id           BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  employee_id  BigInt                  @db.UnsignedBigInt
+  bonus_type   String                  @db.VarChar(255)
+  amount       Decimal                 @db.Decimal(14, 2)
+  salary_month String?                 @db.VarChar(255)
+  reason       String?                 @db.Text
+  status       employee_bonuses_status @default(pending)
+  notes        String?                 @db.Text
+  approved_by  Int?                    @db.UnsignedInt
+  approved_at  DateTime?               @db.Timestamp(0)
+  created_by   Int?                    @db.UnsignedInt
+  created_at   DateTime?               @db.Timestamp(0)
+  updated_at   DateTime?               @db.Timestamp(0)
+  employees    employees               @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "employee_bonuses_employee_id_foreign")
+
+  @@index([employee_id], map: "employee_bonuses_employee_id_index")
+  @@index([salary_month], map: "employee_bonuses_salary_month_index")
+  @@index([status], map: "employee_bonuses_status_index")
+}
+
+model employee_leaves {
+  id          BigInt                     @id @default(autoincrement()) @db.UnsignedBigInt
+  employee_id BigInt                     @db.UnsignedBigInt
+  leave_type  employee_leaves_leave_type @default(casual)
+  start_date  DateTime                   @db.Date
+  end_date    DateTime                   @db.Date
+  total_days  Int
+  reason      String?                    @db.Text
+  status      employee_leaves_status     @default(pending)
+  admin_note  String?                    @db.Text
+  approved_by Int?                       @db.UnsignedInt
+  approved_at DateTime?                  @db.Timestamp(0)
+  created_by  Int?                       @db.UnsignedInt
+  created_at  DateTime?                  @db.Timestamp(0)
+  updated_at  DateTime?                  @db.Timestamp(0)
+  employees   employees                  @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "employee_leaves_employee_id_foreign")
+
+  @@index([employee_id], map: "employee_leaves_employee_id_index")
+  @@index([end_date], map: "employee_leaves_end_date_index")
+  @@index([start_date], map: "employee_leaves_start_date_index")
+  @@index([status], map: "employee_leaves_status_index")
+}
+
+model employee_salaries {
+  id                       BigInt                     @id @default(autoincrement()) @db.UnsignedBigInt
+  employee_id              BigInt                     @db.UnsignedBigInt
+  salary_month             String                     @db.VarChar(255)
+  total_days               Int
+  present_days             Int                        @default(0)
+  absent_days              Int                        @default(0)
+  leave_days               Int                        @default(0)
+  working_days             Int                        @default(0)
+  basic_salary             Decimal                    @default(0.00) @db.Decimal(14, 2)
+  allowance                Decimal                    @default(0.00) @db.Decimal(14, 2)
+  deduction                Decimal                    @default(0.00) @db.Decimal(14, 2)
+  bonus                    Decimal                    @default(0.00) @db.Decimal(14, 2)
+  overtime                 Decimal                    @default(0.00) @db.Decimal(14, 2)
+  gross_salary             Decimal                    @default(0.00) @db.Decimal(14, 2)
+  net_salary               Decimal                    @default(0.00) @db.Decimal(14, 2)
+  status                   employee_salaries_status   @default(pending)
+  notes                    String?                    @db.Text
+  calculated_by            Int?                       @db.UnsignedInt
+  calculated_at            DateTime?                  @db.Timestamp(0)
+  created_at               DateTime?                  @db.Timestamp(0)
+  updated_at               DateTime?                  @db.Timestamp(0)
+  employees                employees                  @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "employee_salaries_employee_id_foreign")
+  employee_salary_payments employee_salary_payments[]
+
+  @@unique([employee_id, salary_month], map: "employee_salaries_employee_id_salary_month_unique")
+  @@index([salary_month], map: "employee_salaries_salary_month_index")
+  @@index([status], map: "employee_salaries_status_index")
+}
+
+model employee_salary_payments {
+  id                BigInt                                  @id @default(autoincrement()) @db.UnsignedBigInt
+  employee_id       BigInt                                  @db.UnsignedBigInt
+  salary_id         BigInt?                                 @db.UnsignedBigInt
+  payment_id        String                                  @unique(map: "employee_salary_payments_payment_id_unique") @db.VarChar(255)
+  payment_month     String                                  @db.VarChar(255)
+  amount            Decimal                                 @db.Decimal(14, 2)
+  payment_method    employee_salary_payments_payment_method @default(bank_transfer)
+  transaction_id    String?                                 @db.VarChar(255)
+  bank_name         String?                                 @db.VarChar(255)
+  account_number    String?                                 @db.VarChar(255)
+  payment_date      DateTime                                @db.Date
+  notes             String?                                 @db.Text
+  status            employee_salary_payments_status         @default(pending)
+  paid_by           Int?                                    @db.UnsignedInt
+  paid_at           DateTime?                               @db.Timestamp(0)
+  created_at        DateTime?                               @db.Timestamp(0)
+  updated_at        DateTime?                               @db.Timestamp(0)
+  employees         employees                               @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "employee_salary_payments_employee_id_foreign")
+  employee_salaries employee_salaries?                      @relation(fields: [salary_id], references: [id], onUpdate: Restrict, map: "employee_salary_payments_salary_id_foreign")
+
+  @@index([employee_id], map: "employee_salary_payments_employee_id_index")
+  @@index([payment_date], map: "employee_salary_payments_payment_date_index")
+  @@index([payment_month], map: "employee_salary_payments_payment_month_index")
+  @@index([salary_id], map: "employee_salary_payments_salary_id_foreign")
+  @@index([status], map: "employee_salary_payments_status_index")
+}
+
+model employees {
+  id                       BigInt                     @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id                  Int?                       @db.UnsignedInt
+  employee_id              String                     @unique(map: "employees_employee_id_unique") @db.VarChar(255)
+  name                     String                     @db.VarChar(255)
+  email                    String                     @unique(map: "employees_email_unique") @db.VarChar(255)
+  phone                    String?                    @db.VarChar(255)
+  designation              String?                    @db.VarChar(255)
+  department               String?                    @db.VarChar(255)
+  joining_date             DateTime                   @db.Date
+  basic_salary             Decimal                    @default(0.00) @db.Decimal(14, 2)
+  address                  String?                    @db.Text
+  nid                      String?                    @db.VarChar(255)
+  bank_name                String?                    @db.VarChar(255)
+  bank_account             String?                    @db.VarChar(255)
+  status                   employees_status           @default(active)
+  notes                    String?                    @db.Text
+  created_by               Int?                       @db.UnsignedInt
+  created_at               DateTime?                  @db.Timestamp(0)
+  updated_at               DateTime?                  @db.Timestamp(0)
+  employee_attendances     employee_attendances[]
+  employee_bonuses         employee_bonuses[]
+  employee_leaves          employee_leaves[]
+  employee_salaries        employee_salaries[]
+  employee_salary_payments employee_salary_payments[]
+
+  @@index([employee_id], map: "employees_employee_id_index")
+  @@index([status], map: "employees_status_index")
+  @@index([user_id], map: "employees_user_id_index")
+}
+
+model expense_logs {
+  id                  BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  expense_id          BigInt?             @db.UnsignedBigInt
+  action              expense_logs_action
+  old_title           String?             @db.VarChar(255)
+  new_title           String?             @db.VarChar(255)
+  old_amount          Decimal?            @db.Decimal(15, 2)
+  new_amount          Decimal?            @db.Decimal(15, 2)
+  old_expense_date    DateTime?           @db.Date
+  new_expense_date    DateTime?           @db.Date
+  old_category        String?             @db.VarChar(255)
+  new_category        String?             @db.VarChar(255)
+  old_note            String?             @db.Text
+  new_note            String?             @db.Text
+  fund_balance_before Decimal             @db.Decimal(15, 2)
+  fund_balance_after  Decimal             @db.Decimal(15, 2)
+  description         String?             @db.Text
+  performed_by        BigInt              @db.UnsignedBigInt
+  created_at          DateTime?           @db.Timestamp(0)
+  updated_at          DateTime?           @db.Timestamp(0)
+  expenses            expenses?           @relation(fields: [expense_id], references: [id], onUpdate: Restrict, map: "expense_logs_expense_id_foreign")
+
+  @@index([action], map: "expense_logs_action_index")
+  @@index([created_at], map: "expense_logs_created_at_index")
+  @@index([expense_id], map: "expense_logs_expense_id_index")
+  @@index([performed_by], map: "expense_logs_performed_by_index")
+}
+
+model expenses {
+  id                  BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  title               String         @db.VarChar(255)
+  amount              Decimal        @db.Decimal(15, 2)
+  expense_date        DateTime       @db.Date
+  category            String?        @db.VarChar(100)
+  note                String?        @db.Text
+  fund_transaction_id BigInt?        @db.UnsignedBigInt
+  created_by          BigInt         @db.UnsignedBigInt
+  updated_by          BigInt?        @db.UnsignedBigInt
+  created_at          DateTime?      @db.Timestamp(0)
+  updated_at          DateTime?      @db.Timestamp(0)
+  expense_logs        expense_logs[]
+
+  @@index([expense_date], map: "expenses_expense_date_index")
+  @@index([fund_transaction_id], map: "expenses_fund_transaction_id_index")
+}
+
+model facebook_capi_settings {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  pixel_id        String?   @db.VarChar(255)
+  access_token    String?   @db.Text
+  test_event_code String?   @db.VarChar(255)
+  status          Boolean   @default(true)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model failed_jobs {
+  id         BigInt   @id @db.UnsignedBigInt
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model fund_transaction_logs {
+  id                  BigInt                               @id @default(autoincrement()) @db.UnsignedBigInt
+  fund_transaction_id BigInt?                              @db.UnsignedBigInt
+  action              fund_transaction_logs_action
+  old_direction       fund_transaction_logs_old_direction?
+  new_direction       fund_transaction_logs_new_direction?
+  old_amount          Decimal?                             @db.Decimal(15, 2)
+  new_amount          Decimal?                             @db.Decimal(15, 2)
+  balance_before      Decimal                              @db.Decimal(15, 2)
+  balance_after       Decimal                              @db.Decimal(15, 2)
+  old_note            String?                              @db.VarChar(255)
+  new_note            String?                              @db.VarChar(255)
+  description         String?                              @db.Text
+  performed_by        BigInt                               @db.UnsignedBigInt
+  created_at          DateTime?                            @db.Timestamp(0)
+  updated_at          DateTime?                            @db.Timestamp(0)
+  fund_transactions   fund_transactions?                   @relation(fields: [fund_transaction_id], references: [id], onUpdate: Restrict, map: "fund_transaction_logs_fund_transaction_id_foreign")
+
+  @@index([action], map: "fund_transaction_logs_action_index")
+  @@index([created_at], map: "fund_transaction_logs_created_at_index")
+  @@index([fund_transaction_id], map: "fund_transaction_logs_fund_transaction_id_index")
+  @@index([performed_by], map: "fund_transaction_logs_performed_by_index")
+}
+
+model fund_transactions {
+  id                    BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
+  direction             fund_transactions_direction
+  source                String                      @db.VarChar(50)
+  source_id             BigInt?                     @db.UnsignedBigInt
+  amount                Decimal                     @default(0.00) @db.Decimal(12, 2)
+  note                  String?                     @db.VarChar(255)
+  created_by            BigInt?                     @db.UnsignedBigInt
+  updated_by            BigInt?                     @db.UnsignedBigInt
+  created_at            DateTime?                   @db.Timestamp(0)
+  updated_at            DateTime?                   @db.Timestamp(0)
+  fund_transaction_logs fund_transaction_logs[]
+  supplier_payments     supplier_payments[]
+
+  @@index([direction], map: "fund_transactions_direction_index")
+  @@index([source, source_id], map: "fund_transactions_source_source_id_index")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model general_settings {
+  id                          Int       @id @default(autoincrement()) @db.UnsignedInt
+  name                        String    @db.VarChar(55)
+  invoice_company_name        String?   @db.VarChar(155)
+  invoice_address             String?   @db.Text
+  invoice_phone               String?   @db.VarChar(100)
+  invoice_email               String?   @db.VarChar(150)
+  invoice_footer_note         String?   @db.VarChar(500)
+  white_logo                  String    @db.VarChar(255)
+  dark_logo                   String    @db.VarChar(255)
+  favicon                     String    @db.VarChar(255)
+  copyright                   String?   @db.VarChar(155)
+  description                 String?   @db.LongText
+  hot_deal_end_date           DateTime? @db.Date
+  flash_sale_end_date         DateTime? @db.Date
+  top_headline                String?   @db.Text
+  checkout_note               String?   @db.Text
+  order_policy                String?   @db.Text
+  show_all_products           Int       @default(1)
+  show_category_wise_products Int       @default(1)
+  status                      Int       @db.TinyInt
+  demo_mode                   Int       @default(0) @db.TinyInt
+  vendor_enabled              Int       @default(1) @db.TinyInt
+  reseller_enabled            Int       @default(1) @db.TinyInt
+  created_at                  DateTime? @db.Timestamp(0)
+  updated_at                  DateTime? @db.Timestamp(0)
+  og_baner                    String?   @db.VarChar(255)
+  fraud_api_key               String?   @db.LongText
+  duplicate_order_api_key     String?   @db.VarChar(255)
+  fraud_secret_key            String?   @db.LongText
+  facebook_page_username      String?   @db.Text
+  primary_color               String?   @db.VarChar(255)
+  secodery_color              String?   @db.VarChar(255)
+  footer_color                String?   @db.VarChar(255)
+  copyright_color             String?   @db.VarChar(255)
+  order_limit_time            Int?      @default(48)
+  order_limit_qty             Int?      @default(2)
+  footer_about_text           String?   @db.Text
+  google_play_link            String?   @db.VarChar(255)
+  app_store_link              String?   @db.VarChar(255)
+  update_api_url              String?   @db.VarChar(255)
+  update_script_name          String?   @db.VarChar(100)
+  app_version                 String?   @db.VarChar(50)
+  accent_color                String?   @db.VarChar(30)
+  header_color                String?   @db.VarChar(30)
+  background_color            String?   @db.VarChar(30)
+  surface_color               String?   @db.VarChar(30)
+  text_color                  String?   @db.VarChar(30)
+  border_color                String?   @db.VarChar(30)
+  buy_now_color               String?   @db.VarChar(30)
+  add_to_cart_color           String?   @db.VarChar(30)
+  discount_badge_color        String?   @db.VarChar(30)
+  show_business_credentials   Boolean   @default(false)
+  trade_license_number        String?   @db.VarChar(100)
+  trade_license_public_file   String?   @db.VarChar(255)
+  bin_certificate_number      String?   @db.VarChar(100)
+  bin_certificate_public_file String?   @db.VarChar(255)
+  tin_certificate_number      String?   @db.VarChar(100)
+  tin_certificate_public_file String?   @db.VarChar(255)
+}
+
+model google_tag_managers {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  code       String    @db.VarChar(255)
+  status     Int       @db.TinyInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model incomplete_orders {
+  id            Int       @id @default(autoincrement()) @db.UnsignedInt
+  name          String?   @db.VarChar(255)
+  phone         String?   @db.VarChar(55)
+  address       String?   @db.Text
+  items         String?   @db.LongText
+  product_image String?   @db.VarChar(255)
+  product_link  String?   @db.VarChar(255)
+  total_amount  Decimal?  @db.Decimal(10, 2)
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([phone], map: "incomplete_orders_phone_index")
+}
+
+model ip_blocks {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  ip_no      String    @db.VarChar(255)
+  reason     String    @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model marketing_pixels {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  platform        String    @unique(map: "marketing_pixels_platform_unique") @db.VarChar(20)
+  pixel_id        String?   @db.VarChar(128)
+  status          Boolean   @default(false)
+  direct_fallback Boolean   @default(true)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+
+  @@index([status], map: "marketing_pixels_status_index")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model model_has_permissions {
+  permission_id BigInt @db.UnsignedBigInt
+  model_type    String @db.VarChar(255)
+  model_id      BigInt @db.UnsignedBigInt
+
+  @@id([permission_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_permissions_model_id_model_type_index")
+}
+
+model model_has_roles {
+  role_id    BigInt @db.UnsignedBigInt
+  model_type String @db.VarChar(255)
+  model_id   BigInt @db.UnsignedBigInt
+
+  @@id([role_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_roles_model_id_model_type_index")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model newsletter_subscribers {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  email      String    @unique(map: "newsletter_subscribers_email_unique") @db.VarChar(255)
+  status     Int       @default(1) @db.TinyInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model order_details {
+  id               Int       @id @default(autoincrement()) @db.UnsignedInt
+  order_id         Int
+  product_id       Int
+  vendor_id        Int?      @db.UnsignedInt
+  product_name     String    @db.VarChar(255)
+  purchase_price   Int?
+  sale_price       Int
+  commission_rate  Decimal?  @db.Decimal(5, 2)
+  admin_commission Decimal   @default(0.00) @db.Decimal(12, 2)
+  vendor_earning   Decimal   @default(0.00) @db.Decimal(12, 2)
+  vendor_paid_at   DateTime? @db.Timestamp(0)
+  product_discount Int?      @default(0)
+  product_size     String?   @db.VarChar(255)
+  variant_price_id Int?
+  product_color    String?   @db.VarChar(255)
+  qty              Int
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  vendors          vendors?  @relation(fields: [vendor_id], references: [id], onUpdate: Restrict, map: "order_details_vendor_id_foreign")
+
+  @@index([order_id])
+  @@index([product_id])
+  @@index([vendor_id], map: "order_details_vendor_id_foreign")
+}
+
+model order_statuses {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  name       String    @db.VarChar(155)
+  slug       String    @db.VarChar(155)
+  status     String    @db.VarChar(55)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model orders {
+  id                        Int       @id @default(autoincrement()) @db.UnsignedInt
+  invoice_id                String    @db.VarChar(55)
+  consignment_id            String?   @db.VarChar(255)
+  amount                    Int
+  reseller_profit           Decimal?  @db.Decimal(14, 2)
+  customer_payable_amount   Decimal?  @db.Decimal(14, 2)
+  reseller_wallet_credited  Boolean   @default(false)
+  discount                  Int
+  coupon_code               String?   @db.VarChar(255)
+  shipping_charge           Int
+  customer_id               Int
+  ip_address                String?   @db.VarChar(45)
+  admin_note                String?   @db.Text
+  order_status              Int       @db.TinyInt
+  courier_type              String?   @db.VarChar(255)
+  courier_tracking_id       String?   @db.VarChar(255)
+  courier_sent_at           DateTime? @db.Timestamp(0)
+  fraud_success             Int       @default(0)
+  fraud_cancel              Int       @default(0)
+  fraud_rate                Float?
+  pathao_success            Int       @default(0)
+  pathao_cancel             Int       @default(0)
+  pathao_rate               Decimal   @default(0.00) @db.Decimal(5, 2)
+  redx_success              Int       @default(0)
+  redx_cancel               Int       @default(0)
+  redx_rate                 Decimal   @default(0.00) @db.Decimal(5, 2)
+  steadfast_success         Int       @default(0)
+  steadfast_cancel          Int       @default(0)
+  steadfast_rate            Decimal   @default(0.00) @db.Decimal(5, 2)
+  is_duplicate_order        Int       @default(0) @db.TinyInt
+  duplicate_order_count     Int       @default(0)
+  duplicate_order_rate      Decimal?  @db.Decimal(5, 2)
+  last_duplicate_order_date DateTime? @db.DateTime(0)
+  user_id                   Int?
+  note                      String?   @db.VarChar(256)
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+  payment_status            String?   @default("unpaid") @db.VarChar(20)
+  payment_gateway           String?   @db.VarChar(100)
+  advance_amount            Decimal   @default(0.00) @db.Decimal(10, 2)
+  order_note                String?   @db.Text
+  refunds                   refunds[]
+
+  @@index([created_at])
+  @@index([customer_id, id], map: "orders_customer_id_idx")
+  @@index([invoice_id])
+  @@index([payment_status, id])
+  @@index([order_status, id], map: "orders_status_id_idx")
+  @@index([order_status, updated_at], map: "orders_status_updated_idx")
+}
+
+model page_availability_rules {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  path         String    @unique(map: "page_availability_rules_path_unique") @db.VarChar(500)
+  enabled      Boolean   @default(true)
+  block_type   String    @default("503") @db.VarChar(20)
+  message      String?   @db.Text
+  redirect_url String?   @db.VarChar(1000)
+  starts_at    DateTime? @db.DateTime(0)
+  ends_at      DateTime? @db.DateTime(0)
+  note         String?   @db.VarChar(500)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model password_resets {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+}
+
+model payment_gateways {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  type           String?   @db.VarChar(55)
+  display_name   String?   @db.VarChar(80)
+  account_number String?   @db.VarChar(100)
+  account_type   String?   @db.VarChar(80)
+  instructions   String?   @db.Text
+  app_key        String?   @db.VarChar(155)
+  app_secret     String?   @db.VarChar(155)
+  username       String?   @db.VarChar(55)
+  password       String?   @db.VarChar(55)
+  base_url       String?   @db.VarChar(99)
+  success_url    String?   @db.VarChar(155)
+  return_url     String?   @db.VarChar(155)
+  prefix         String?   @db.VarChar(25)
+  status         Int       @default(0) @db.TinyInt
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([type, status])
+}
+
+model payments {
+  id             Int       @id @default(autoincrement()) @db.UnsignedInt
+  order_id       Int
+  customer_id    Int
+  amount         Int
+  trx_id         String?   @db.VarChar(55)
+  sender_number  String?   @db.VarChar(55)
+  payment_method String?   @db.VarChar(55)
+  payment_status String    @db.VarChar(55)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([order_id])
+  @@index([trx_id])
+}
+
+model permissions {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  guard_name String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  @@unique([name, guard_name], map: "permissions_name_guard_name_unique")
+}
+
+model personal_access_tokens {
+  id             BigInt    @id @db.UnsignedBigInt
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   BigInt    @db.UnsignedBigInt
+  name           String    @db.VarChar(255)
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?   @db.Text
+  last_used_at   DateTime? @db.Timestamp(0)
+  expires_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model popups {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  image          String    @db.VarChar(255)
+  title          String?   @db.VarChar(255)
+  description    String?   @db.Text
+  offer_end_text String?   @db.VarChar(255)
+  btn_text       String?   @db.VarChar(255)
+  link           String?   @db.VarChar(255)
+  status         Int       @default(1) @db.TinyInt
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model product_quotations {
+  id                   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id           BigInt?   @db.UnsignedBigInt
+  product_name         String    @db.VarChar(255)
+  name                 String    @db.VarChar(255)
+  phone                String    @db.VarChar(50)
+  email                String?   @db.VarChar(255)
+  organization         String?   @db.VarChar(255)
+  quantity             Int       @default(1) @db.UnsignedInt
+  note                 String?   @db.Text
+  status               String    @default("new") @db.VarChar(30)
+  notification_read_at DateTime? @db.Timestamp(0)
+  ip_address           String?   @db.VarChar(64)
+  created_at           DateTime? @db.Timestamp(0)
+  updated_at           DateTime? @db.Timestamp(0)
+
+  @@index([notification_read_at], map: "product_quotations_notification_read_at_index")
+  @@index([product_id], map: "product_quotations_product_id_index")
+  @@index([status], map: "product_quotations_status_index")
+}
+
+model product_variant_prices {
+  id             BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id     BigInt           @db.UnsignedBigInt
+  color_id       Int?             @db.UnsignedInt
+  size_id        Int?             @db.UnsignedInt
+  price          Decimal          @default(0.00) @db.Decimal(10, 2)
+  stock          Int?             @default(0)
+  sku            String?          @db.VarChar(50)
+  colors         colors?          @relation(fields: [color_id], references: [id], map: "fk_color")
+  products       Product          @relation(fields: [product_id], references: [id], onDelete: Cascade, map: "fk_product")
+  sizes          sizes?           @relation(fields: [size_id], references: [id], map: "fk_size")
+  purchase_items purchase_items[]
+
+  @@index([color_id], map: "fk_color")
+  @@index([product_id], map: "fk_product")
+  @@index([size_id], map: "fk_size")
+  @@index([product_id, color_id, size_id], map: "product_variant_prices_product_id_color_id_size_id_index")
+}
+
+model product_wholesale_prices {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id      BigInt    @db.UnsignedBigInt
+  min_quantity    Int
+  max_quantity    Int?
+  wholesale_price Decimal   @db.Decimal(14, 2)
+  stock           Int       @default(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  products        Product   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "product_wholesale_prices_product_id_foreign")
+
+  @@index([product_id], map: "product_wholesale_prices_product_id_index")
+}
+
+model productcolors {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  product_id Int
+  color_id   Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  @@index([product_id])
+}
+
+model productsizes {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  product_id Int
+  size_id    Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  @@index([product_id])
+}
+
+model purchase_items {
+  id                     BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  purchase_id            BigInt                  @db.UnsignedBigInt
+  product_id             BigInt                  @db.UnsignedBigInt
+  variant_price_id       BigInt?                 @db.UnsignedBigInt
+  qty                    Int                     @default(0)
+  unit_cost              Decimal                 @default(0.00) @db.Decimal(15, 2)
+  line_total             Decimal                 @default(0.00) @db.Decimal(15, 2)
+  returned_qty           Int                     @default(0)
+  created_at             DateTime?               @db.Timestamp(0)
+  updated_at             DateTime?               @db.Timestamp(0)
+  products               Product                 @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "purchase_items_product_id_foreign")
+  purchases              purchases               @relation(fields: [purchase_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "purchase_items_purchase_id_foreign")
+  product_variant_prices product_variant_prices? @relation(fields: [variant_price_id], references: [id], onUpdate: Restrict, map: "purchase_items_variant_price_id_foreign")
+
+  @@index([product_id], map: "purchase_items_product_id_foreign")
+  @@index([purchase_id], map: "purchase_items_purchase_id_foreign")
+  @@index([purchase_id, product_id], map: "purchase_items_purchase_id_product_id_index")
+  @@index([variant_price_id], map: "purchase_items_variant_price_id_foreign")
+}
+
+model purchase_logs {
+  id                  BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  purchase_id         BigInt?              @db.UnsignedBigInt
+  action              purchase_logs_action
+  old_invoice_no      String?              @db.VarChar(255)
+  new_invoice_no      String?              @db.VarChar(255)
+  old_purchase_date   DateTime?            @db.Date
+  new_purchase_date   DateTime?            @db.Date
+  old_paid_amount     Decimal?             @db.Decimal(15, 2)
+  new_paid_amount     Decimal?             @db.Decimal(15, 2)
+  old_grand_total     Decimal?             @db.Decimal(15, 2)
+  new_grand_total     Decimal?             @db.Decimal(15, 2)
+  old_note            String?              @db.Text
+  new_note            String?              @db.Text
+  fund_balance_before Decimal              @db.Decimal(15, 2)
+  fund_balance_after  Decimal              @db.Decimal(15, 2)
+  description         String?              @db.Text
+  performed_by        BigInt               @db.UnsignedBigInt
+  created_at          DateTime?            @db.Timestamp(0)
+  updated_at          DateTime?            @db.Timestamp(0)
+  purchases           purchases?           @relation(fields: [purchase_id], references: [id], onUpdate: Restrict, map: "purchase_logs_purchase_id_foreign")
+
+  @@index([action], map: "purchase_logs_action_index")
+  @@index([created_at], map: "purchase_logs_created_at_index")
+  @@index([performed_by], map: "purchase_logs_performed_by_index")
+  @@index([purchase_id], map: "purchase_logs_purchase_id_index")
+}
+
+model purchases {
+  id                BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  supplier_id       BigInt              @db.UnsignedBigInt
+  invoice_no        String              @db.VarChar(50)
+  purchase_date     DateTime            @db.Date
+  total_qty         Int                 @default(0)
+  subtotal          Decimal             @default(0.00) @db.Decimal(15, 2)
+  discount          Decimal             @default(0.00) @db.Decimal(15, 2)
+  shipping_cost     Decimal             @default(0.00) @db.Decimal(15, 2)
+  grand_total       Decimal             @default(0.00) @db.Decimal(15, 2)
+  paid_amount       Decimal             @default(0.00) @db.Decimal(15, 2)
+  due_amount        Decimal             @default(0.00) @db.Decimal(15, 2)
+  note              String?             @db.Text
+  status            String              @default("completed") @db.VarChar(20)
+  created_by        BigInt              @db.UnsignedBigInt
+  created_at        DateTime?           @db.Timestamp(0)
+  updated_at        DateTime?           @db.Timestamp(0)
+  purchase_items    purchase_items[]
+  purchase_logs     purchase_logs[]
+  suppliers         suppliers           @relation(fields: [supplier_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "purchases_supplier_id_foreign")
+  supplier_payments supplier_payments[]
+
+  @@index([supplier_id], map: "purchases_supplier_id_foreign")
+  @@index([supplier_id, purchase_date], map: "purchases_supplier_id_purchase_date_index")
+}
+
+model refunds {
+  id                  BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  order_id            Int                   @db.UnsignedInt
+  customer_id         Int                   @db.UnsignedInt
+  vendor_id           Int?                  @db.UnsignedInt
+  refund_id           String                @unique(map: "refunds_refund_id_unique") @db.VarChar(255)
+  amount              Decimal               @db.Decimal(14, 2)
+  shipping_charge     Decimal               @default(0.00) @db.Decimal(14, 2)
+  reason              String?               @db.Text
+  admin_note          String?               @db.Text
+  status              refunds_status        @default(pending)
+  refund_method       refunds_refund_method @default(original_payment)
+  refund_account      String?               @db.VarChar(255)
+  refund_account_name String?               @db.VarChar(255)
+  transaction_id      String?               @db.VarChar(255)
+  processed_by        Int?                  @db.UnsignedInt
+  processed_at        DateTime?             @db.Timestamp(0)
+  created_at          DateTime?             @db.Timestamp(0)
+  updated_at          DateTime?             @db.Timestamp(0)
+  customers           customers             @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "refunds_customer_id_foreign")
+  orders              orders                @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "refunds_order_id_foreign")
+  vendors             vendors?              @relation(fields: [vendor_id], references: [id], onUpdate: Restrict, map: "refunds_vendor_id_foreign")
+
+  @@index([customer_id], map: "refunds_customer_id_index")
+  @@index([order_id], map: "refunds_order_id_index")
+  @@index([status], map: "refunds_status_index")
+  @@index([vendor_id], map: "refunds_vendor_id_index")
+}
+
+model reseller_withdrawals {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id        BigInt    @db.UnsignedBigInt
+  amount         Decimal   @db.Decimal(14, 2)
+  charge         Decimal   @default(0.00) @db.Decimal(14, 2)
+  payout_method  String    @default("manual") @db.VarChar(255)
+  account_name   String?   @db.VarChar(255)
+  account_number String?   @db.VarChar(255)
+  note           String?   @db.Text
+  status         String    @default("pending") @db.VarChar(255)
+  admin_note     String?   @db.Text
+  processed_at   DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+  users          User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reseller_withdrawals_user_id_foreign")
+
+  @@index([user_id], map: "reseller_withdrawals_user_id_foreign")
+}
+
+model reviews {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  name        String    @db.VarChar(255)
+  email       String    @db.VarChar(55)
+  ratting     String    @db.VarChar(4)
+  review      String    @db.Text
+  product_id  Int
+  customer_id Int
+  status      String    @db.VarChar(55)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+
+  @@index([customer_id, product_id], map: "reviews_customer_product_idx")
+  @@index([product_id])
+  @@index([product_id, status], map: "reviews_product_status_idx")
+  @@index([status, id])
+}
+
+model role_has_permissions {
+  permission_id BigInt @db.UnsignedBigInt
+  role_id       BigInt @db.UnsignedBigInt
+
+  @@id([permission_id, role_id])
+  @@index([role_id], map: "role_has_permissions_role_id_foreign")
+}
+
+model roles {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  guard_name String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  @@unique([name, guard_name], map: "roles_name_guard_name_unique")
+}
+
+model seo_settings {
+  id                          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  meta_title                  String?   @db.VarChar(255)
+  meta_tags                   String?   @db.VarChar(255)
+  meta_description            String?   @db.Text
+  search_console_verification String?   @db.VarChar(255)
+  created_at                  DateTime? @db.Timestamp(0)
+  updated_at                  DateTime? @db.Timestamp(0)
+}
+
+model shipping_charges {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  name       String    @db.VarChar(255)
+  amount     Int
+  status     String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model shippings {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  order_id    Int
+  customer_id Int
+  name        String    @db.VarChar(155)
+  phone       String    @db.VarChar(55)
+  address     String?   @db.VarChar(256)
+  area        String?   @db.VarChar(256)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+
+  @@index([order_id])
+  @@index([phone])
+  @@index([phone, order_id], map: "shippings_phone_order_idx")
+}
+
+model sizes {
+  id                     Int                      @id @default(autoincrement()) @db.UnsignedInt
+  sizeName               String?                  @db.VarChar(255)
+  status                 String?                  @db.VarChar(255)
+  created_at             DateTime?                @db.Timestamp(0)
+  updated_at             DateTime?                @db.Timestamp(0)
+  product_variant_prices product_variant_prices[]
+}
+
+model sms_gateways {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  url              String?   @db.VarChar(99)
+  api_key          String?   @db.VarChar(155)
+  serderid         String?   @db.VarChar(155)
+  order            String?   @db.VarChar(11)
+  forget_pass      String?   @db.VarChar(11)
+  password_g       String?   @db.VarChar(11)
+  status           String?   @db.VarChar(11)
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  admin_phone_list String?   @db.VarChar(255)
+}
+
+model social_media {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  title      String    @db.VarChar(255)
+  icon       String    @db.VarChar(255)
+  link       String?   @db.Text
+  color      String?   @db.VarChar(20)
+  status     Int       @db.TinyInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model supplier_payments {
+  id                  BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  supplier_id         BigInt             @db.UnsignedBigInt
+  purchase_id         BigInt?            @db.UnsignedBigInt
+  amount              Decimal            @db.Decimal(15, 2)
+  payment_date        DateTime           @db.Date
+  method              String?            @db.VarChar(50)
+  note                String?            @db.Text
+  fund_transaction_id BigInt?            @db.UnsignedBigInt
+  created_by          BigInt             @db.UnsignedBigInt
+  created_at          DateTime?          @db.Timestamp(0)
+  updated_at          DateTime?          @db.Timestamp(0)
+  fund_transactions   fund_transactions? @relation(fields: [fund_transaction_id], references: [id], onUpdate: Restrict, map: "supplier_payments_fund_transaction_id_foreign")
+  purchases           purchases?         @relation(fields: [purchase_id], references: [id], onUpdate: Restrict, map: "supplier_payments_purchase_id_foreign")
+  suppliers           suppliers          @relation(fields: [supplier_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "supplier_payments_supplier_id_foreign")
+
+  @@index([fund_transaction_id], map: "supplier_payments_fund_transaction_id_foreign")
+  @@index([purchase_id], map: "supplier_payments_purchase_id_foreign")
+  @@index([supplier_id], map: "supplier_payments_supplier_id_foreign")
+  @@index([supplier_id, purchase_id], map: "supplier_payments_supplier_id_purchase_id_index")
+}
+
+model suppliers {
+  id                BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  name              String              @db.VarChar(255)
+  phone             String?             @db.VarChar(50)
+  email             String?             @db.VarChar(100)
+  address           String?             @db.VarChar(255)
+  opening_balance   Decimal             @default(0.00) @db.Decimal(15, 2)
+  current_due       Decimal             @default(0.00) @db.Decimal(15, 2)
+  created_at        DateTime?           @db.Timestamp(0)
+  updated_at        DateTime?           @db.Timestamp(0)
+  purchases         purchases[]
+  supplier_payments supplier_payments[]
+}
+
+model vendor_wallet_transactions {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  vendor_id   Int       @db.UnsignedInt
+  type        String    @db.VarChar(255)
+  status      String    @default("completed") @db.VarChar(255)
+  amount      Decimal   @db.Decimal(14, 2)
+  source_type String?   @db.VarChar(255)
+  source_id   BigInt?   @db.UnsignedBigInt
+  note        String?   @db.Text
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  vendors     vendors   @relation(fields: [vendor_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "vendor_wallet_transactions_vendor_id_foreign")
+
+  @@index([vendor_id], map: "vendor_wallet_transactions_vendor_id_foreign")
+}
+
+model vendor_wallets {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  vendor_id       Int       @unique(map: "vendor_wallets_vendor_id_unique") @db.UnsignedInt
+  balance         Decimal   @default(0.00) @db.Decimal(14, 2)
+  total_earned    Decimal   @default(0.00) @db.Decimal(14, 2)
+  total_withdrawn Decimal   @default(0.00) @db.Decimal(14, 2)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  vendors         vendors   @relation(fields: [vendor_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "vendor_wallets_vendor_id_foreign")
+}
+
+model vendor_withdrawals {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  vendor_id      Int       @db.UnsignedInt
+  amount         Decimal   @db.Decimal(14, 2)
+  charge         Decimal   @default(0.00) @db.Decimal(14, 2)
+  payout_method  String    @default("manual") @db.VarChar(255)
+  account_name   String?   @db.VarChar(255)
+  account_number String?   @db.VarChar(255)
+  note           String?   @db.Text
+  status         String    @default("pending") @db.VarChar(255)
+  admin_note     String?   @db.Text
+  processed_at   DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+  vendors        vendors   @relation(fields: [vendor_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "vendor_withdrawals_vendor_id_foreign")
+
+  @@index([vendor_id], map: "vendor_withdrawals_vendor_id_foreign")
+}
+
+model vendors {
+  id                         Int                          @id @default(autoincrement()) @db.UnsignedInt
+  shop_name                  String                       @db.VarChar(255)
+  slug                       String                       @unique(map: "vendors_slug_unique") @db.VarChar(255)
+  owner_name                 String                       @db.VarChar(255)
+  email                      String                       @unique(map: "vendors_email_unique") @db.VarChar(255)
+  phone                      String                       @db.VarChar(255)
+  forgot                     String?                      @db.VarChar(255)
+  address                    String?                      @db.Text
+  logo                       String?                      @db.VarChar(255)
+  banner                     String?                      @db.VarChar(255)
+  status                     Int                          @default(1) @db.TinyInt
+  verification_status        vendors_verification_status  @default(pending)
+  voter_id_front             String?                      @db.VarChar(255)
+  voter_id_back              String?                      @db.VarChar(255)
+  self_image                 String?                      @db.VarChar(255)
+  verification_note          String?                      @db.Text
+  verified_at                DateTime?                    @db.Timestamp(0)
+  commission_rate            Decimal                      @default(10.00) @db.Decimal(5, 2)
+  created_at                 DateTime?                    @db.Timestamp(0)
+  updated_at                 DateTime?                    @db.Timestamp(0)
+  order_details              order_details[]
+  products                   Product[]
+  refunds                    refunds[]
+  users                      User[]
+  vendor_wallet_transactions vendor_wallet_transactions[]
+  vendor_wallets             vendor_wallets?
+  vendor_withdrawals         vendor_withdrawals[]
+  wholesale_products         wholesale_products[]
+}
+
+model versions {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  version            String    @unique(map: "versions_version_unique") @db.VarChar(20)
+  release_date       DateTime  @db.Date
+  changelog          String?   @db.Text
+  file_size          BigInt?
+  file_path          String?   @db.VarChar(255)
+  is_active          Boolean   @default(true)
+  requires_migration Boolean   @default(false)
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+}
+
+model wholesale_product_images {
+  id                   BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  wholesale_product_id BigInt             @db.UnsignedBigInt
+  image                String             @db.VarChar(255)
+  sort_order           Int                @default(0)
+  created_at           DateTime?          @db.Timestamp(0)
+  updated_at           DateTime?          @db.Timestamp(0)
+  wholesale_products   wholesale_products @relation(fields: [wholesale_product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "wholesale_product_images_wholesale_product_id_foreign")
+
+  @@index([wholesale_product_id], map: "wholesale_product_images_wholesale_product_id_foreign")
+}
+
+model wholesale_products {
+  id                       BigInt                             @id @default(autoincrement()) @db.UnsignedBigInt
+  name                     String                             @db.VarChar(255)
+  slug                     String                             @unique(map: "wholesale_products_slug_unique") @db.VarChar(255)
+  description              String?                            @db.Text
+  category_id              Int                                @db.UnsignedInt
+  subcategory_id           Int?                               @db.UnsignedInt
+  childcategory_id         Int?                               @db.UnsignedInt
+  brand_id                 Int?                               @db.UnsignedInt
+  product_code             String                             @unique(map: "wholesale_products_product_code_unique") @db.VarChar(255)
+  purchase_price           Decimal                            @db.Decimal(14, 2)
+  wholesale_price          Decimal                            @db.Decimal(14, 2)
+  retail_price             Decimal?                           @db.Decimal(14, 2)
+  min_quantity             Int                                @default(1)
+  stock                    Int                                @default(0)
+  status                   Int                                @default(1) @db.TinyInt
+  approval_status          wholesale_products_approval_status @default(pending)
+  vendor_id                Int?                               @db.UnsignedInt
+  created_by               Int?                               @db.UnsignedInt
+  meta_title               String?                            @db.VarChar(255)
+  meta_description         String?                            @db.Text
+  meta_keywords            String?                            @db.VarChar(255)
+  meta_image               String?                            @db.VarChar(255)
+  feature_product          Int                                @default(0) @db.TinyInt
+  unit                     String                             @default("piece") @db.VarChar(255)
+  created_at               DateTime?                          @db.Timestamp(0)
+  updated_at               DateTime?                          @db.Timestamp(0)
+  wholesale_product_images wholesale_product_images[]
+  categories               Category                           @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "wholesale_products_category_id_foreign")
+  vendors                  vendors?                           @relation(fields: [vendor_id], references: [id], onUpdate: Restrict, map: "wholesale_products_vendor_id_foreign")
+
+  @@index([approval_status], map: "wholesale_products_approval_status_index")
+  @@index([category_id], map: "wholesale_products_category_id_index")
+  @@index([status], map: "wholesale_products_status_index")
+  @@index([vendor_id], map: "wholesale_products_vendor_id_index")
+}
+
+enum products_product_type {
+  physical
+  digital
+}
+
+enum fund_transactions_direction {
+  in
+  out
+}
+
+enum expense_logs_action {
+  edit
+  delete
+}
+
+enum fund_transaction_logs_action {
+  edit
+  delete
+}
+
+enum coupons_type {
+  flat
+  percent
+}
+
+enum employee_leaves_leave_type {
+  sick
+  casual
+  annual
+  emergency
+  maternity
+  paternity
+  unpaid
+}
+
+enum purchase_logs_action {
+  edit
+  delete
+}
+
+enum fund_transaction_logs_old_direction {
+  in
+  out
+}
+
+enum fund_transaction_logs_new_direction {
+  in
+  out
+}
+
+enum employee_attendances_status {
+  present
+  absent
+  late
+  half_day
+  holiday
+}
+
+enum employee_salary_payments_payment_method {
+  cash
+  bank_transfer
+  bkash
+  nagad
+  rocket
+  check
+}
+
+enum employee_bonuses_status {
+  pending
+  approved
+  paid
+}
+
+enum complaints_status {
+  pending
+  processing
+  resolved
+}
+
+enum employee_leaves_status {
+  pending
+  approved
+  rejected
+}
+
+enum users_role {
+  admin
+  vendor
+  reseller
+  customer
+}
+
+enum refunds_status {
+  pending
+  approved
+  rejected
+  processed
+}
+
+enum refunds_refund_method {
+  original_payment
+  bkash
+  nagad
+  bank
+  manual
+}
+
+enum users_verification_status {
+  pending
+  approved
+  rejected
+}
+
+enum vendors_verification_status {
+  pending
+  approved
+  rejected
+}
+
+enum employee_salary_payments_status {
+  pending
+  paid
+  failed
+}
+
+enum employees_status {
+  active
+  inactive
+  terminated
+}
+
+enum employee_salaries_status {
+  pending
+  calculated
+  paid
+}
+
+enum wholesale_products_approval_status {
+  pending
+  approved
+  rejected
+}
+
+enum products_approval_status {
+  pending
+  approved
+  rejected
+}
