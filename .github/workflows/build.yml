@@ -49,11 +49,9 @@ jobs:
       - name: Install Dependencies
         run: npm ci --include=dev --ignore-scripts --no-audit --no-fund
 
-      - name: Ensure Prisma CLI and dotenv
-        run: npm install --no-save --ignore-scripts --no-audit --no-fund prisma@7.10.1 dotenv@17.2.3
-
-      - name: Verify Prisma CLI and dotenv
+      - name: Verify installed dependencies
         run: |
+          node -e "const fs=require('fs'); const names=['next','react','react-dom','lucide-react','@playwright/test','@types/node','mariadb','@prisma/adapter-mariadb','@prisma/client','prisma','dotenv','typescript','eslint','vitest']; const missing=names.filter(n=>!fs.existsSync('node_modules/'+n)); if(missing.length){console.error('Missing packages:',missing.join(', '));process.exit(1)} console.log('All required packages exist')"
           node -e "console.log('dotenv:', require.resolve('dotenv'))"
           test -x node_modules/.bin/prisma
           ./node_modules/.bin/prisma --version
