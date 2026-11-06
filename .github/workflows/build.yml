@@ -1,3 +1,4 @@
+
 name: Victor Scientific Linux Build
 
 on:
@@ -11,7 +12,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     services:
       mariadb:
@@ -30,34 +31,150 @@ jobs:
     env:
       DATABASE_URL: mysql://root:ci_root_password@127.0.0.1:3306/victor_ci
       DB_CONNECTION_LIMIT: "5"
+
       AUTH_SECRET: ci-only-secret-not-for-production-123456789
+
       NEXT_PUBLIC_SITE_URL: https://shop.victorscientificbd.com
-      NEXT_PUBLIC_SITE_NAME: Victor Scientific Co.
-      CHECKOUT_ENABLED: "false"
+      NEXT_PUBLIC_SITE_NAME: "Victor Scientific Co."
+
+      NEXT_PUBLIC_LARAVEL_API_URL: https://api-shop.victorscientificbd.com
+      NEXT_PUBLIC_LARAVEL_APP_URL: https://api-shop.victorscientificbd.com
+
+      CHECKOUT_ENABLED: "true"
       NEXT_TELEMETRY_DISABLED: "1"
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - name: Install Dependencies
-        run: npm ci --include=dev --ignore-scripts --no-audit --no-fund
-
-      - name: Verify installed dependencies
+      - name: Verify Project Structure
         run: |
-          node -e "const fs=require('fs'); const names=['next','react','react-dom','lucide-react','@playwright/test','@types/node','mariadb','@prisma/adapter-mariadb','@prisma/client','prisma','dotenv','typescript','eslint','vitest']; const missing=names.filter(n=>!fs.existsSync('node_modules/'+n)); if(missing.length){console.error('Missing packages:',missing.join(', '));process.exit(1)} console.log('All required packages exist')"
-          node -e "console.log('dotenv:', require.resolve('dotenv'))"
-          test -x node_modules/.bin/prisma
+          echo "===== PROJECT DIRECTORY ====="
+          pwd
+
+          echo "===== PROJECT FILES ====="
+          ls -lah
+
+          test -f package.json || {
+            echo "ERROR: package.json not found"
+            exit 1
+          }
+
+          test -f package-lock.json || {
+            echo "ERROR: package-lock.json not found"
+            exit 1
+          }
+
+          node -e "
+            const p = require('./package.json');
+            console.log('Project:', p.name);
+            console.log('Scripts:', p.scripts);
+            console.log('Dependencies:', Object.keys(p.dependencies || {}).length);
+            console.log('DevDependencies:', Object.keys(p.devDependencies || {}).length);
+          "
+
+      - name: Install Project Dependencies
+        run: |
+          echo "===== NPM VERSION ====="
+          npm --version
+
+          echo "===== INSTALLING DEPENDENCIES ====="
+
+          npm ci \
+            --include=dev \
+            --no-audit \
+            --no-fund \
+            --foreground-scripts
+
+          echo "===== NPM ROOT ====="
+          npm root
+
+      - name: Verify Installed Dependencies
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const { execFileSync } = require('child_process');
+
+          const root = execFileSync('npm', ['root'], {
+            encoding: 'utf8'
+          }).trim();
+
+          const names = [
+            'next',
+            'react',
+            'react-dom',
+            'lucide-react',
+            '@playwright/test',
+            '@types/node',
+            'mariadb',
+            '@prisma/adapter-mariadb',
+            '@prisma/client',
+            'prisma',
+            'dotenv',
+            'typescript',
+            'eslint',
+            'vitest'
+          ];
+
+          const manifest = require('./package.json');
+
+          const declared = {
+            ...manifest.dependencies,
+            ...manifest.devDependencies,
+            ...manifest.optionalDependencies
+          };
+
+          const undeclared = names.filter(name => !declared[name]);
+
+          const missing = names.filter(name => {
+            const packagePath = path.join(
+              root,
+              ...name.split('/'),
+              'package.json'
+            );
+
+            return !fs.existsSync(packagePath);
+          });
+
+          console.log('NPM ROOT:', root);
+
+          if (undeclared.length) {
+            console.error(
+              'Not declared in package.json:',
+              undeclared.join(', ')
+            );
+          }
+
+          if (missing.length) {
+            console.error(
+              'Missing installed packages:',
+              missing.join(', ')
+            );
+          }
+
+          if (undeclared.length || missing.length) {
+            process.exit(1);
+          }
+
+          console.log('SUCCESS: All required packages verified.');
+          NODE
+
+          echo "===== PRISMA CLI ====="
           ./node_modules/.bin/prisma --version
 
       - name: Generate Prisma Client
         run: ./node_modules/.bin/prisma generate
+
+      - name: Prepare Temporary CI Database
+        run: |
+          ./node_modules/.bin/prisma db push --accept-data-loss
 
       - name: TypeScript Check
         run: npm run typecheck
@@ -71,32 +188,71 @@ jobs:
       - name: Validate Prisma
         run: npm run db:validate
 
-      - name: Prepare Temporary CI Database
-        run: ./node_modules/.bin/prisma db push --accept-data-loss
-
       - name: Build Next.js
         run: npm run build
 
-      - name: Prepare cPanel Package
+      - name: Verify Production Build
         run: |
-          npm prune --omit=dev --ignore-scripts --no-audit --no-fund
+          test -d .next
+          test -d public
+          test -f app.js
+          test -f package.json
+          test -f next.config.ts
+          test -d src/generated/prisma
+
+          echo "Production build files verified."
+
+      - name: Prepare cPanel Production Package
+        run: |
+          set -e
+
+          echo "===== REMOVE DEVELOPMENT DEPENDENCIES ====="
+
+          npm prune \
+            --omit=dev \
+            --ignore-scripts \
+            --no-audit \
+            --no-fund
+
+          echo "===== CREATE RELEASE DIRECTORY ====="
 
           mkdir -p release/src/generated
 
-          cp -a .next public node_modules \
-            app.js package.json package-lock.json \
-            next.config.ts prisma prisma.config.ts release/
+          cp -a \
+            .next \
+            public \
+            node_modules \
+            app.js \
+            package.json \
+            package-lock.json \
+            next.config.ts \
+            prisma \
+            prisma.config.ts \
+            release/
 
-          cp -a src/generated/prisma release/src/generated/
+          cp -a src/generated/prisma \
+            release/src/generated/
 
           rm -rf release/.next/cache
 
+          echo "===== CREATE ZIP ====="
+
           cd release
-          zip -qr ../victor-scientific-cpanel-release.zip .
+
+          zip -qr \
+            ../victor-scientific-cpanel-release.zip .
+
+          cd ..
+
+          echo "===== PACKAGE SIZE ====="
+          ls -lh victor-scientific-cpanel-release.zip
+
+          unzip -t victor-scientific-cpanel-release.zip
 
       - name: Upload Deployment Package
         uses: actions/upload-artifact@v4
         with:
           name: victor-scientific-cpanel-release
           path: victor-scientific-cpanel-release.zip
+          if-no-files-found: error
           retention-days: 7
