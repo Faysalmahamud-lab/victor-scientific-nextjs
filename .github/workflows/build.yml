@@ -1,0 +1,92 @@
+name: Victor Scientific Linux Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: ci_root_password
+          MARIADB_DATABASE: victor_ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: mysql://root:ci_root_password@127.0.0.1:3306/victor_ci
+      DB_CONNECTION_LIMIT: "5"
+      AUTH_SECRET: ci-only-secret-not-for-production-123456789
+      NEXT_PUBLIC_SITE_URL: https://shop.victorscientificbd.com
+      NEXT_PUBLIC_SITE_NAME: Victor Scientific Co.
+      CHECKOUT_ENABLED: "false"
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: TypeScript Check
+        run: npm run typecheck
+
+      - name: ESLint Check
+        run: npm run lint
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Validate Prisma
+        run: npm run db:validate
+
+      - name: Prepare Temporary CI Database
+        run: npx prisma db push --accept-data-loss
+
+      - name: Build Next.js
+        run: npm run build
+
+      - name: Prepare cPanel Package
+        run: |
+          npm prune --omit=dev --ignore-scripts --no-audit --no-fund
+
+          mkdir -p release/src/generated
+
+          cp -a .next public node_modules \
+            app.js package.json package-lock.json \
+            next.config.ts prisma prisma.config.ts release/
+
+          cp -a src/generated/prisma release/src/generated/
+
+          rm -rf release/.next/cache
+
+          cd release
+          zip -qr ../victor-scientific-cpanel-release.zip .
+
+      - name: Upload Deployment Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: victor-scientific-cpanel-release
+          path: victor-scientific-cpanel-release.zip
+          retention-days: 7
