@@ -47,7 +47,15 @@ jobs:
           cache: npm
 
       - name: Install Dependencies
-        run: npm ci --no-audit --no-fund
+        run: npm ci --include=dev --ignore-scripts --no-audit --no-fund
+
+      - name: Verify Prisma CLI
+        run: |
+          test -x node_modules/.bin/prisma
+          ./node_modules/.bin/prisma --version
+
+      - name: Generate Prisma Client
+        run: ./node_modules/.bin/prisma generate
 
       - name: TypeScript Check
         run: npm run typecheck
@@ -62,7 +70,7 @@ jobs:
         run: npm run db:validate
 
       - name: Prepare Temporary CI Database
-        run: npx prisma db push --accept-data-loss
+        run: ./node_modules/.bin/prisma db push --accept-data-loss
 
       - name: Build Next.js
         run: npm run build
